@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holidays from Ninjas API</title>
+    <style>
+       #countryInput{
+         font-size: 2vw;
+       } 
+    </style>
+</head>
+<body>
+    <h1>Holidays from Ninjas API<br> month: <span id="monthName"></span></h1><p>please contact me before using my API key<a href="https://wa.me/+254114471302">whatsapp me</p></a>
+    <div>
+        <label for="countryInput">Country:</label>
+        <input type="text" id="countryInput" value="Kenya">
+        <label for="monthSelect">Month:</label>
+        <select id="monthSelect">
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+        </select>
+        <center>
+        <button onclick="displayHolidays()">Show Holidays</button>
+        </center>
+    </div>
+    <table id="holidaysTable">
+        <thead>
+            <tr>
+                <th>Holiday Type</th>
+                <th>Date</th>
+                <th>Month</th>
+                <th>Holiday Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Holidays will be dynamically added here -->
+        </tbody>
+    </table>
+    <center>
+<p style="color: grey"><tt>This information was generated from Ninjas API <br>Special thanks to API Ninjas<tt></p>
+    </center>
+    <script>
+        const apiKey = 'GyoUjHIHrXPwknBYlTHmI6kprzR1uqsWQXVfsmLb'; // Replace with your actual API key
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        async function fetchHolidays(country, year, month) {
+            try {
+                const url = 'https://api.api-ninjas.com/v1/holidays?country=' + country + '&year=' + year + (month ? '&month=' + month : '');
+                const response = await fetch(url, {
+                    headers: {
+                        'X-Api-Key': apiKey
+                    }
+                });
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching holidays:', error);
+                return [];
+            }
+        }
+
+        async function displayHolidays() {
+            const country = document.getElementById('countryInput').value;
+            const month = document.getElementById('monthSelect').value;
+            const year = new Date().getFullYear();
+            const monthIndex = month - 1;
+            const monthName = monthNames[monthIndex];
+            document.getElementById('monthName').textContent = monthName;
+            let holidays = await fetchHolidays(country, year, month);
+            const tableBody = document.querySelector('#holidaysTable tbody');
+
+            // Clear previous data
+            tableBody.innerHTML = '';
+
+            // Filter holidays by month
+            holidays = holidays.filter(holiday => holiday.date.split('-')[1] === month);
+
+            holidays.forEach(holiday => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${holiday.type}</td>
+                    <td>${holiday.date}</td>
+                    <td>${holiday.date.split('-')[1]}</td>
+                    <td>${holiday.name}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Display holidays on page load
+        displayHolidays();
+    </script>
+</body>
+</html>
